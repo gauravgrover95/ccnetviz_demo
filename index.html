@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>ccnetviz test</title>
+	<style>
+		#container {
+			height: 500px;
+			width: 500px;
+			border: 1px solid black;
+		}
+	</style>
+</head>
+<body>
+<canvas id="container" />
+<!-- <div id="container"></div> -->
+
+
+<script src="ccNetViz/examples/libs/jquery.min.js"></script>
+<script src="./ccNetViz/dist/ccNetViz.js"></script>
+<script src="./graph.js"></script>
+<script>
+    // console.log("--> Did not get 404 error here for the non-existent gibbrish pathnames supplied in styles.nodes.texture and styles.edges.arrow");
+    var graph = new ccNetViz(document.getElementById('container'), {
+      styles: {
+        node: { texture: "ccnetviz/images/node.png", label: { hideSize: 16 } }, edge: { arrow: { texture: "ccnetviz/images/arrow.png" } }
+      }});
+    var nodes = data.nodes;
+    var edges = data.edges;
+    graph.set(nodes, edges, "circular", { "starting_angle": Math.PI / 4 });
+    graph.draw();
+</script>
+</body>
+</html>
