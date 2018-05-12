@@ -25,9 +25,25 @@
       styles: {
         node: { texture: "ccnetviz/images/node.png", label: { hideSize: 16 } }, edge: { arrow: { texture: "ccnetviz/images/arrow.png" } }
       }});
-    var nodes = data.nodes;
-    var edges = data.edges;
-    graph.set(nodes, edges, "circular", { "starting_angle": Math.PI / 4 });
+
+    if(data) {
+      var nodes = data.nodes;
+      var edges = data.edges;
+    } else {
+      var nodes = [
+        { label: "Hello" },
+        { label: "World" },
+        { label: "!" },
+        { label: "There" },
+      ];
+      var edges = [
+        { source: nodes[0], target: nodes[3] },
+        { source: nodes[1], target: nodes[2] },
+        { source: nodes[2], target: nodes[1] }
+      ];
+    }
+
+    graph.set(nodes, edges, "circular");
     graph.draw();
 </script>
 </body>
