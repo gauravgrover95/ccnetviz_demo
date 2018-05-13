@@ -725,41 +725,49 @@
 	
 	    view.size = size;
 	
+	    // Mouse coordinates
 	    var x = e.clientX - rect.left;
 	    var y = e.clientY - rect.top;
-	    var radius = 5;
+	    var radius = 10;
 	
+	    // Defining the Search Box
 	    var x1 = x - radius;
 	    var y1 = y - radius;
 	    var x2 = x + radius;
 	    var y2 = y + radius;
 	
+	    // Searching in the Search Box
 	    var lCoords = graph.getLayerCoords({ x1: x1, y1: y1, x2: x2, y2: y2 });
 	    var result = graph.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true, true);
 	
-	    // console.log('nodes#: ', result.nodes.length);
-	    // console.log('edges#: ', result.edges.length);
-	    console.log('nodes: ', result.nodes);
+	    var focusX = 0;
+	    var focusY = 0;
+	
+	    // if node is found below mouse pointer,
+	    // zooming focus is the center of that node
+	    // else, it is the window co-ords of the mouse pointer
 	    if (result.nodes.length) {
+	      console.log("NODE FOUND!", result.nodes.length);
 	      var node = result.nodes[0];
-	      console.log('the node: ', node);
-	      console.log('label: ', node.node.label);
-	      console.log('positionX: ', node.node.x, 'positionY: ', node.node.y);
-	      var focusX = !result.nodes.length ? e.clientX - rect.left : node.node.x * canvas.width;
-	      var focusY = !result.nodes.length ? e.clientY - rect.top : node.node.y * canvas.width;
+	      var focus = this.getScreenCoords({
+	        x: node.node.x,
+	        y: node.node.y
+	      });
+	      focusX = focus.x;
+	      focusY = focus.y;
+	
 	      console.log('focusX', focusX);
 	      console.log('focusY', focusY);
-	      view.x = Math.max(0, Math.min(1 - size, view.x - delta * focusX / canvas.width));
-	      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - focusY / canvas.height)));
 	    } else {
 	      console.error("NO NODE FOUND!");
-	      var _focusX = e.clientX - rect.left;
-	      var _focusY = e.clientY - rect.top;
-	      console.log('focusX', _focusX);
-	      console.log('focusY', _focusY);
-	      view.x = Math.max(0, Math.min(1 - size, view.x - delta * _focusX / canvas.width));
-	      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - _focusY / canvas.height)));
+	      focusX = e.clientX - rect.left;
+	      focusY = e.clientY - rect.top;
+	      console.log('focusX', focusX);
+	      console.log('focusY', focusY);
 	    }
+	
+	    view.x = Math.max(0, Math.min(1 - size, view.x - delta * focusX / canvas.width));
+	    view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - focusY / canvas.height)));
 	
 	    if (options.onZoom && options.onZoom(view) === false) {
 	      view.size = oldsize;

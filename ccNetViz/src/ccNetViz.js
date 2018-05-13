@@ -487,44 +487,51 @@ var ccNetViz = function(canvas, options){
       
       view.size = size;
 
-      let x = e.clientX - rect.left;
-      let y = e.clientY - rect.top;
-      let radius = 5;
+      // Mouse coordinates
+      let mousePointer = {};
+      mousePointer.x = e.clientX - rect.left;
+      mousePointer.y = e.clientY - rect.top;
+      let radius = 10;
 
-      let x1 = x - radius;
-      let y1 = y - radius;
-      let x2 = x + radius;
-      let y2 = y + radius;
+      // Defining the Search Box
+      let x1 = mousePointer.x - radius;
+      let y1 = mousePointer.y - radius;
+      let x2 = mousePointer.x + radius;
+      let y2 = mousePointer.y + radius;
 
+      // Searching in the Search Box
       let lCoords = graph.getLayerCoords({ x1: x1, y1: y1, x2: x2, y2: y2 });
       let result = graph.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true, true);
 
-      // console.log('nodes#: ', result.nodes.length);
-      // console.log('edges#: ', result.edges.length);
-      console.log('nodes: ', result.nodes);
-      if(result.nodes.length) {
+      // focus co-ordinates while zooming
+      let focusX = 0;
+      let focusY = 0;
+      
+      // if node is found below mouse pointer,
+      // zooming focus is the center of that node
+      // else, it is the window co-ords of the mouse pointer
+      if (result.nodes.length) {
+        console.log("NODE FOUND!", result.nodes.length);
         let node = result.nodes[0];
-        console.log('the node: ', node);
-        console.log('label: ', node.node.label);
-        console.log('positionX: ', node.node.x, 'positionY: ', node.node.y);
-        let focusX = (!result.nodes.length) ? e.clientX - rect.left : node.node.x*canvas.width;
-        let focusY = (!result.nodes.length) ? e.clientY - rect.top : node.node.y*canvas.width;
+        let focus = this.getScreenCoords({
+          x:  node.node.x,
+          y:  node.node.y 
+        });
+        focusX = focus.x;
+        focusY = focus.y;
+        
         console.log('focusX', focusX);
         console.log('focusY', focusY);
-        view.x = Math.max(0, Math.min(1 - size, view.x - delta * (focusX) / canvas.width));
-        view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (focusY) / canvas.height)));
       } else {
         console.error("NO NODE FOUND!");
-        let focusX = e.clientX - rect.left;
-        let focusY = e.clientY - rect.top;
+        focusX = mousePointer.x;
+        focusY = mousePointer.y;
         console.log('focusX', focusX);
         console.log('focusY', focusY);
-        view.x = Math.max(0, Math.min(1 - size, view.x - delta * (focusX) / canvas.width));
-        view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (focusY) / canvas.height)));
       }
-      
 
-      
+      view.x = Math.max(0, Math.min(1 - size, view.x - delta * (focusX) / canvas.width));
+      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (focusY) / canvas.height)));
 
       if(options.onZoom && options.onZoom(view) === false){
         view.size = oldsize;
