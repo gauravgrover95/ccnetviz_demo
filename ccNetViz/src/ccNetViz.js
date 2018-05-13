@@ -499,11 +499,13 @@ var ccNetViz = function(canvas, options){
       let x2 = mousePointer.x + radius;
       let y2 = mousePointer.y + radius;
 
+
       // Searching in the Search Box
       let lCoords = graph.getLayerCoords({ x1: x1, y1: y1, x2: x2, y2: y2 });
       let result = graph.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true, true);
 
       // focus co-ordinates while zooming
+
       let focusX = 0;
       let focusY = 0;
       
