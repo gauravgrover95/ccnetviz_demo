@@ -709,6 +709,11 @@
 	
 	  function onContextMenu(e) {}
 	
+	  // continuous zoom is a function that will contain the 
+	  // timer which will indicate if currently it is a continuous zoom or not
+	  var continuosZoom = null;
+	  var focusX = 0;
+	  var focusY = 0;
 	  function onWheel(e) {
 	    var rect = canvas.getBoundingClientRect();
 	    var size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
@@ -725,47 +730,66 @@
 	
 	    view.size = size;
 	
-	    // Mouse coordinates
-	    var x = e.clientX - rect.left;
-	    var y = e.clientY - rect.top;
-	    var radius = 10;
+	    // if no timer found i.e. we are not in continuous phase
+	    // we are calculating the focus variables again 
+	    if (!continuosZoom) {
 	
-	    // Defining the Search Box
-	    var x1 = x - radius;
-	    var y1 = y - radius;
-	    var x2 = x + radius;
-	    var y2 = y + radius;
+	      console.log("continuous zoom begins");
+	      console.log("Calculating the new focus variables");
 	
-	    // Searching in the Search Box
-	    var lCoords = graph.getLayerCoords({ x1: x1, y1: y1, x2: x2, y2: y2 });
-	    var result = graph.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true, true);
+	      // Mouse coordinates
+	      var mousePointer = {};
+	      mousePointer.x = e.clientX - rect.left;
+	      mousePointer.y = e.clientY - rect.top;
+	      var radius = 10;
 	
-	    var focusX = 0;
-	    var focusY = 0;
+	      // Defining the Search Box
+	      var x1 = mousePointer.x - radius;
+	      var y1 = mousePointer.y - radius;
+	      var x2 = mousePointer.x + radius;
+	      var y2 = mousePointer.y + radius;
 	
-	    // if node is found below mouse pointer,
-	    // zooming focus is the center of that node
-	    // else, it is the window co-ords of the mouse pointer
-	    if (result.nodes.length) {
-	      console.log("NODE FOUND!", result.nodes.length);
-	      var node = result.nodes[0];
-	      var focus = this.getScreenCoords({
-	        x: node.node.x,
-	        y: node.node.y
-	      });
-	      focusX = focus.x;
-	      focusY = focus.y;
+	      // Searching in the Search Box
+	      var lCoords = graph.getLayerCoords({ x1: x1, y1: y1, x2: x2, y2: y2 });
+	      var result = graph.findArea(lCoords.x1, lCoords.y1, lCoords.x2, lCoords.y2, true, true);
 	
-	      console.log('focusX', focusX);
-	      console.log('focusY', focusY);
-	    } else {
-	      console.error("NO NODE FOUND!");
-	      focusX = e.clientX - rect.left;
-	      focusY = e.clientY - rect.top;
+	      // if node found beneath mouse_ptr, zooming_focus is the center of that node
+	      if (result.nodes.length) {
+	        console.log("NODE FOUND!", result.nodes.length);
+	        var node = result.nodes[0];
+	        var focus = this.getScreenCoords({
+	          x: node.node.x,
+	          y: node.node.y
+	        });
+	        focusX = focus.x;
+	        focusY = focus.y;
+	      }
+	      // else, it is the window co-ords of the mouse_ptr
+	      else {
+	          console.error("NO NODE FOUND!");
+	          focusX = mousePointer.x;
+	          focusY = mousePointer.y;
+	        }
+	
+	      continuosZoom = setTimeout(function () {
+	        console.log("Ends continuous zoom");
+	        continuosZoom = null;
+	      }, 1000);
 	      console.log('focusX', focusX);
 	      console.log('focusY', focusY);
 	    }
+	    // else when the timer if found, i.e. we are in a continuous_zoom phase,
+	    // we do not need to calculate the new focus variables.
+	    // But we will need to end the old timer and start a new timer.
+	    else {
+	        clearTimeout(continuosZoom);
+	        continuosZoom = setTimeout(function () {
+	          console.log("Ends continuous zoom");
+	          continuosZoom = null;
+	        }, 1000);
+	      }
 	
+	    // updates the viewport 
 	    view.x = Math.max(0, Math.min(1 - size, view.x - delta * focusX / canvas.width));
 	    view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - focusY / canvas.height)));
 	
