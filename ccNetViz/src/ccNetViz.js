@@ -473,9 +473,10 @@ var ccNetViz = function(canvas, options){
   function onContextMenu(e){
   }
 
-  // continuous zoom is a function that will contain the 
-  // timer which will indicate if currently it is a continuous zoom or not
+  // continuouZoom contains the timer instance indicating if user is in continous_zoom phase
   let continuosZoom = null;
+  // time interval of the continuos phase
+  let timeInterval= 200;
   let focusX = 0;
   let focusY = 0;
   function onWheel(e) {
@@ -537,7 +538,7 @@ var ccNetViz = function(canvas, options){
         continuosZoom = setTimeout(() => {
             console.log("Ends continuous zoom");
             continuosZoom = null;
-        }, 1000);
+        }, timeInterval);
         console.log('focusX', focusX);
         console.log('focusY', focusY);
       } 
@@ -549,7 +550,7 @@ var ccNetViz = function(canvas, options){
         continuosZoom = setTimeout(() => {
           console.log("Ends continuous zoom");
           continuosZoom = null;
-        }, 1000);
+        }, timeInterval);
       }
 
       // updates the viewport 

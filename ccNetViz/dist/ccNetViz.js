@@ -709,9 +709,10 @@
 	
 	  function onContextMenu(e) {}
 	
-	  // continuous zoom is a function that will contain the 
-	  // timer which will indicate if currently it is a continuous zoom or not
+	  // continuouZoom contains the timer instance indicating if user is in continous_zoom phase
 	  var continuosZoom = null;
+	  // time interval of the continuos phase
+	  var timeInterval = 200;
 	  var focusX = 0;
 	  var focusY = 0;
 	  function onWheel(e) {
@@ -774,7 +775,7 @@
 	      continuosZoom = setTimeout(function () {
 	        console.log("Ends continuous zoom");
 	        continuosZoom = null;
-	      }, 1000);
+	      }, timeInterval);
 	      console.log('focusX', focusX);
 	      console.log('focusY', focusY);
 	    }
@@ -786,7 +787,7 @@
 	        continuosZoom = setTimeout(function () {
 	          console.log("Ends continuous zoom");
 	          continuosZoom = null;
-	        }, 1000);
+	        }, timeInterval);
 	      }
 	
 	    // updates the viewport 
