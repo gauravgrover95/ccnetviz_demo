@@ -473,13 +473,25 @@ var ccNetViz = function(canvas, options){
   function onContextMenu(e){
   }
 
-  // continuouZoom contains the timer instance indicating if user is in continous_zoom phase
-  let continuosZoom = null;
-  // time interval of the continuos phase
-  let timeInterval= 200;
-  let focusX = 0;
-  let focusY = 0;
   function onWheel(e) {
+
+      /**
+       * defining static  variables for initial configuration
+       */
+      if (
+        onWheel.continuosZoom == 'undefinded' || 
+        onWheel.timeInterval == 'undefined' ||
+        onWheel.focusX == 'undefined' ||
+        onWheel.focusY == 'undefined'
+      ) {
+        // continuouZoom contains the timer instance indicating if user is in continous_zoom phase
+        onWheel.continuosZoom = null;
+        // time interval of the continuos phase
+        onWheel.timeInterval = 200;
+        onWheel.focusX = 0;
+        onWheel.focusY = 0;
+      }
+      
       let rect = canvas.getBoundingClientRect();
       let size = Math.min(1.0, view.size * (1 + 0.001 * (e.deltaMode ? 33 : 1) * e.deltaY));
 
@@ -495,7 +507,7 @@ var ccNetViz = function(canvas, options){
 
       // if no timer found i.e. we are not in continuous phase
       // we are calculating the focus variables again 
-      if(!continuosZoom) {
+      if(!onWheel.continuosZoom) {
 
         console.log("continuous zoom begins");
         console.log("Calculating the new focus variables");
@@ -525,37 +537,37 @@ var ccNetViz = function(canvas, options){
             x: node.node.x,
             y: node.node.y
           });
-          focusX = focus.x;
-          focusY = focus.y;
+          onWheel.focusX = focus.x;
+          onWheel.focusY = focus.y;
         } 
         // else, it is the window co-ords of the mouse_ptr
         else {
           console.error("NO NODE FOUND!");
-          focusX = mousePointer.x;
-          focusY = mousePointer.y;
+          onWheel.focusX = mousePointer.x;
+          onWheel.focusY = mousePointer.y;
         }
 
-        continuosZoom = setTimeout(() => {
+        onWheel.continuosZoom = setTimeout(() => {
             console.log("Ends continuous zoom");
-            continuosZoom = null;
-        }, timeInterval);
-        console.log('focusX', focusX);
-        console.log('focusY', focusY);
+            onWheel.continuosZoom = null;
+        }, onWheel.timeInterval);
+        console.log('focusX', onWheel.focusX);
+        console.log('onWheel.focusY', onWheel.focusY);
       } 
       // else when the timer if found, i.e. we are in a continuous_zoom phase,
       // we do not need to calculate the new focus variables.
       // But we will need to end the old timer and start a new timer.
       else {
-        clearTimeout(continuosZoom);
-        continuosZoom = setTimeout(() => {
+        clearTimeout(onWheel.continuosZoom);
+        onWheel.continuosZoom = setTimeout(() => {
           console.log("Ends continuous zoom");
-          continuosZoom = null;
-        }, timeInterval);
+          onWheel.continuosZoom = null;
+        }, onWheel.timeInterval);
       }
 
       // updates the viewport 
-      view.x = Math.max(0, Math.min(1 - size, view.x - delta * (focusX) / canvas.width));
-      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (focusY) / canvas.height)));
+      view.x = Math.max(0, Math.min(1 - size, view.x - delta * (onWheel.focusX) / canvas.width));
+      view.y = Math.max(0, Math.min(1 - size, view.y - delta * (1 - (onWheel.focusY) / canvas.height)));
 
       if(options.onZoom && options.onZoom(view) === false){
         view.size = oldsize;
